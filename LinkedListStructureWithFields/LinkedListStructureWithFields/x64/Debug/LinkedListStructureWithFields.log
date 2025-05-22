@@ -1,6 +1,0 @@
-﻿  LinkedListStructureWithFields.c
-D:\examsTraining\LinkedListStructureWithFields\LinkedListStructureWithFields\LinkedListStructureWithFields.c(77,5): warning C4013: SetConsoleOutputCP: нет определения; предполагается "extern" с возвратом типа "int"
-D:\examsTraining\LinkedListStructureWithFields\LinkedListStructureWithFields\LinkedListStructureWithFields.c(80,40): warning C4305: инициализация: усечение из "double" в "float"
-D:\examsTraining\LinkedListStructureWithFields\LinkedListStructureWithFields\LinkedListStructureWithFields.c(81,40): warning C4305: инициализация: усечение из "double" в "float"
-D:\examsTraining\LinkedListStructureWithFields\LinkedListStructureWithFields\LinkedListStructureWithFields.c(82,42): warning C4305: инициализация: усечение из "double" в "float"
-  LinkedListStructureWithFields.vcxproj -> D:\examsTraining\LinkedListStructureWithFields\x64\Debug\LinkedListStructureWithFields.exe
