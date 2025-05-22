@@ -1,0 +1,392 @@
+Пузырек
+using System;
+
+class Program
+{
+    static void BubbleSort(int[] array)
+    {
+        int temp;
+        bool swapped;
+
+        // Внешний цикл для проходов
+        for (int i = 0; i < array.Length - 1; i++)
+        {
+            swapped = false;
+
+            // Внутренний цикл для пары элементов
+            for (int j = 0; j < array.Length - 1 - i; j++)
+            {
+                if (array[j] > array[j + 1])
+                {
+                    // Обмен элементов
+                    temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+
+                    swapped = true;
+                }
+            }
+
+            // Если не было обменов — массив уже отсортирован
+            if (!swapped)
+                break;
+        }
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 5, 2, 9, 1, 5, 6 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        BubbleSort(numbers);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+
+Radix Sort
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    // Получение максимального значения в массиве
+    static int GetMax(int[] array)
+    {
+        int max = array[0];
+        foreach (int num in array)
+        {
+            if (num > max)
+                max = num;
+        }
+        return max;
+    }
+
+    // Поразрядная сортировка
+    static void RadixSort(int[] array)
+    {
+        int max = GetMax(array);
+
+        // Сортировка по каждому разряду
+        for (int exp = 1; max / exp > 0; exp *= 10)
+        {
+            CountingSortByDigit(array, exp);
+        }
+    }
+
+    // Сортировка подсчётом по конкретному разряду
+    static void CountingSortByDigit(int[] array, int exp)
+    {
+        int n = array.Length;
+        int[] output = new int[n];
+        int[] count = new int[10];
+
+        // Подсчёт количества цифр в текущем разряде
+        for (int i = 0; i < n; i++)
+        {
+            int digit = (array[i] / exp) % 10;
+            count[digit]++;
+        }
+
+        // Изменение count[i] так, чтобы count[i] содержал
+        // позицию этой цифры в выходном массиве
+        for (int i = 1; i < 10; i++)
+        {
+            count[i] += count[i - 1];
+        }
+
+        // Построение выходного массива
+        for (int i = n - 1; i >= 0; i--)
+        {
+            int digit = (array[i] / exp) % 10;
+            output[count[digit] - 1] = array[i];
+            count[digit]--;
+        }
+
+        // Копирование отсортированных элементов обратно в исходный массив
+        for (int i = 0; i < n; i++)
+        {
+            array[i] = output[i];
+        }
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 170, 45, 75, 90, 802, 24, 2, 66 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        RadixSort(numbers);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+
+Counting Sort
+
+using System;
+
+class Program
+{
+    static void CountingSort(int[] array)
+    {
+        if (array.Length == 0)
+            return;
+
+        // Найдём максимум для определения диапазона
+        int max = array[0];
+        foreach (int num in array)
+        {
+            if (num > max)
+                max = num;
+        }
+
+        // Создание массива подсчёта
+        int[] count = new int[max + 1];
+
+        // Подсчитываем количество вхождений каждого числа
+        foreach (int num in array)
+        {
+            count[num]++;
+        }
+
+        // Перезаписываем исходный массив отсортированными значениями
+        int index = 0;
+        for (int i = 0; i < count.Length; i++)
+        {
+            while (count[i] > 0)
+            {
+                array[index++] = i;
+                count[i]--;
+            }
+        }
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 4, 2, 2, 8, 3, 3, 1 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        CountingSort(numbers);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+
+Insertion Sort
+
+using System;
+
+class Program
+{
+    static void InsertionSort(int[] array)
+    {
+        int n = array.Length;
+
+        for (int i = 1; i < n; i++)
+        {
+            int key = array[i];     // текущий элемент
+            int j = i - 1;
+
+            // Сдвигаем элементы, которые больше key, вправо
+            while (j >= 0 && array[j] > key)
+            {
+                array[j + 1] = array[j];
+                j--;
+            }
+
+            // Вставляем key на правильное место
+            array[j + 1] = key;
+        }
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 5, 2, 9, 1, 5, 6 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        InsertionSort(numbers);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+
+Gnome Sort
+
+using System;
+
+class Program
+{
+    static void GnomeSort(int[] array)
+    {
+        int i = 1;
+
+        while (i < array.Length)
+        {
+            if (i == 0 || array[i] >= array[i - 1])
+            {
+                i++; // Всё в порядке — идём вперёд
+            }
+            else
+            {
+                // Меняем элементы местами
+                int temp = array[i];
+                array[i] = array[i - 1];
+                array[i - 1] = temp;
+
+                i--; // Возвращаемся назад
+            }
+        }
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 5, 3, 2, 4, 1 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        GnomeSort(numbers);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+быстрая
+
+using System;
+
+class Program
+{
+    static void QuickSort(int[] array, int left, int right)
+    {
+        if (left >= right) return;
+
+        int pivotIndex = Partition(array, left, right);
+        QuickSort(array, left, pivotIndex - 1);   // сортировка левой части
+        QuickSort(array, pivotIndex + 1, right);  // сортировка правой части
+    }
+
+    static int Partition(int[] array, int left, int right)
+    {
+        int pivot = array[right]; // выбираем последний элемент как опорный
+        int i = left - 1;
+
+        for (int j = left; j < right; j++)
+        {
+            if (array[j] <= pivot)
+            {
+                i++;
+                Swap(array, i, j);
+            }
+        }
+
+        Swap(array, i + 1, right); // ставим опорный элемент на своё место
+        return i + 1;
+    }
+
+    static void Swap(int[] array, int a, int b)
+    {
+        int temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 5, 3, 8, 4, 2, 7, 1, 10 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        QuickSort(numbers, 0, numbers.Length - 1);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+
+слиянием
+
+using System;
+
+class Program
+{
+    static void MergeSort(int[] array, int left, int right)
+    {
+        if (left >= right) return;
+
+        int middle = (left + right) / 2;
+
+        // Рекурсивно сортируем левую и правую части
+        MergeSort(array, left, middle);
+        MergeSort(array, middle + 1, right);
+
+        // Слияние отсортированных частей
+        Merge(array, left, middle, right);
+    }
+
+    static void Merge(int[] array, int left, int middle, int right)
+    {
+        int[] leftArray = new int[middle - left + 1];
+        int[] rightArray = new int[right - middle];
+
+        Array.Copy(array, left, leftArray, 0, leftArray.Length);
+        Array.Copy(array, middle + 1, rightArray, 0, rightArray.Length);
+
+        int i = 0, j = 0, k = left;
+
+        // Слияние двух массивов
+        while (i < leftArray.Length && j < rightArray.Length)
+        {
+            if (leftArray[i] <= rightArray[j])
+            {
+                array[k++] = leftArray[i++];
+            }
+            else
+            {
+                array[k++] = rightArray[j++];
+            }
+        }
+
+        // Копируем оставшиеся элементы
+        while (i < leftArray.Length)
+            array[k++] = leftArray[i++];
+
+        while (j < rightArray.Length)
+            array[k++] = rightArray[j++];
+    }
+
+    static void Main()
+    {
+        int[] numbers = { 8, 3, 5, 4, 7, 6, 1, 2 };
+
+        Console.WriteLine("До сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+
+        MergeSort(numbers, 0, numbers.Length - 1);
+
+        Console.WriteLine("После сортировки:");
+        Console.WriteLine(string.Join(", ", numbers));
+    }
+}
+
+

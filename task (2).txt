@@ -1,0 +1,2677 @@
+﻿СКИНУЛА ДАША. Задачу уточнить. Вроде двухсвязный список
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#pragma execution_character_set("utf-8")
+
+// создать структуру с полями
+// создать список со структурами
+// функции: добавление в список, вывод списка
+// список должен быть двусвязным с сортировкой (на 5), односвязным (на 4), коллекции (на 3)
+
+typedef struct Student {
+    char name[50];
+    int age;
+    float gpa;
+} Student;
+
+typedef struct Node {
+    Student data;
+    struct Node* prev;
+    struct Node* next;
+} Node;
+
+Node* create_node(Student s) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = s;
+    new_node->prev = NULL;
+    new_node->next = NULL;
+    return new_node;
+}
+
+void insert_sorted(Node** head, Student s) {
+    Node* new_node = create_node(s);
+
+    if (*head == NULL) {
+        *head = new_node;
+        return;
+    }
+
+    Node* current = *head;
+    while (current != NULL && current->data.age < s.age) {
+        current = current->next;
+    }
+
+    if (current == NULL) {
+        // Вставка в конец
+        Node* last = *head;
+        while (last->next != NULL) last = last->next;
+        last->next = new_node;
+        new_node->prev = last;
+    }
+    else if (current == *head) {
+        // Вставка в начало
+        new_node->next = *head;
+        (*head)->prev = new_node;
+        *head = new_node;
+    }
+    else {
+        // Вставка перед current
+        Node* prev = current->prev;
+        prev->next = new_node;
+        new_node->prev = prev;
+        new_node->next = current;
+        current->prev = new_node;
+    }
+}
+
+void print_list(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("Имя: %s, Возраст: %d, Средний балл: %.2f\n", current->data.name, current->data.age, current->data.gpa);
+        current = current->next;
+    }
+}
+
+int main() {
+    SetConsoleOutputCP(65001);
+    Node* list = NULL;
+
+    Student s1 = { "Иванов", 20, 4.2 };
+    Student s2 = { "Петров", 18, 4.8 };
+    Student s3 = { "Сидоров", 22, 3.9 };
+    Student s4 = { "Алексеев", 19, 4.5 };
+
+    insert_sorted(&list, s1);
+    insert_sorted(&list, s2);
+    insert_sorted(&list, s3);
+    insert_sorted(&list, s4);
+
+    printf("Список студентов:\n");
+    print_list(list);
+
+    return 0;
+}
+
+
+СКИНУЛА ЛЕРА. Задачу уточнить
+
+
+#include <iostream>
+using namespace std;
+
+struct Plane { // понятно, что и название структуры надо поменять под вашу предметную область
+    string planeName; // тут надо будет поменять переменные в зависимости от ващих требований и проставить типы и названия
+    int planeNumber;
+    Plane* prev;
+    Plane* next;
+};
+
+Plane* head = NULL;
+
+void insertInOrder(string name, int number) { //тут тоже надо передовать свои данные, которые трубуются в задании
+    Plane* newNode = new Plane;
+    newNode->planeName = name;
+    newNode->planeNumber = number;
+
+    if (head == NULL) {
+        head = newNode;
+        newNode->prev = NULL;
+        newNode->next = NULL;
+    }
+    else {
+        Plane* current = head;
+        Plane* prev = NULL;
+
+        while (current != NULL && current->planeNumber < number) {
+            prev = current;
+            current = current->next;
+        }
+
+        if (prev == NULL) {
+            newNode->prev = NULL;
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
+        }
+        else {
+            prev->next = newNode;
+            newNode->prev = prev;
+            newNode->next = current;
+            if (current != NULL) {
+                current->prev = newNode;
+            }
+        }
+    }
+}
+
+void printList() {
+    Plane* current = head;
+    while (current != NULL) {
+        cout << current->planeName << " - " << current->planeNumber << endl;
+        current = current->next;
+    }
+}
+
+int main()
+{
+    insertInOrder("Boeing", 3); //по аналогии с 13 строчкой
+    insertInOrder("Airbus", 1);
+    insertInOrder("Embraer", 4);
+    insertInOrder("Bombardier", 2);
+    insertInOrder("Cessna", 5);
+    printList();
+
+    return 0;
+}
+
+
+
+Задача. Создать граф через списки смежности реализовать функцию вывода графа на экран с обходом в ширину / в глубину (граф заполнять случайным образом).
+
+using System;
+using System.Collections.Generic;
+
+class Graph
+{
+    private int vertices;
+    private List<int>[] adjList;
+    private Random rand = new Random();
+
+    public Graph(int v)
+    {
+        vertices = v;
+        adjList = new List<int>[vertices];
+
+        for (int i = 0; i < vertices; i++)
+            adjList[i] = new List<int>();
+
+        GenerateRandomEdges();
+    }
+
+    private void GenerateRandomEdges()
+    {
+        // Попробуем случайно сгенерировать рёбра, избегая петель и дубликатов
+        int maxEdges = vertices * (vertices - 1) / 2; // Максимум для неориентированного графа без петель
+        int edgeCount = rand.Next(vertices, maxEdges); // Случайное количество рёбер
+
+        HashSet<(int, int)> existingEdges = new HashSet<(int, int)>();
+
+        while (existingEdges.Count < edgeCount)
+        {
+            int u = rand.Next(vertices);
+            int v = rand.Next(vertices);
+
+            if (u == v) continue; // Без петель
+
+            // Упорядочиваем вершины, чтобы (u, v) и (v, u) считались одинаковыми
+            var edge = u < v ? (u, v) : (v, u);
+
+            if (!existingEdges.Contains(edge))
+            {
+                existingEdges.Add(edge);
+                adjList[edge.Item1].Add(edge.Item2);
+                adjList[edge.Item2].Add(edge.Item1); // Добавляем в обе стороны (неориентированность)
+            }
+        }
+    }
+
+    public void PrintGraph()
+    {
+        Console.WriteLine("Список смежности неориентированного графа:");
+        for (int i = 0; i < vertices; i++)
+        {
+            Console.Write($"Вершина {i}: ");
+            foreach (int neighbor in adjList[i])
+            {
+                Console.Write($"{neighbor} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    public void BFS(int start)
+    {
+        bool[] visited = new bool[vertices];
+        Queue<int> queue = new Queue<int>();
+
+        visited[start] = true;
+        queue.Enqueue(start);
+
+        Console.WriteLine($"\nОбход в ширину начиная с вершины {start}:");
+
+        while (queue.Count > 0)
+        {
+            int current = queue.Dequeue();
+            Console.Write($"{current} ");
+
+            foreach (int neighbor in adjList[current])
+            {
+                if (!visited[neighbor])
+                {
+                    visited[neighbor] = true;
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+
+        Console.WriteLine();
+    }
+
+    public void DFS(int start)
+    {
+        bool[] visited = new bool[vertices];
+        Console.WriteLine($"\nОбход в глубину начиная с вершины {start}:");
+        DFSUtil(start, visited);
+        Console.WriteLine();
+    }
+
+    private void DFSUtil(int current, bool[] visited)
+    {
+        visited[current] = true;
+        Console.Write($"{current} ");
+
+        foreach (int neighbor in adjList[current])
+        {
+            if (!visited[neighbor])
+                DFSUtil(neighbor, visited);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int numVertices = 6;
+        Graph g = new Graph(numVertices);
+
+        g.PrintGraph();
+        g.BFS(0);
+        g.DFS(0);
+    }
+}
+
+
+
+C#. Создать хеш-таблицу по методу цепочек. В качестве цепочки использовать стандартную коллекцию. Реализовать функцию перехэширования.
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// Хеш-таблица, реализующая метод цепочек для разрешения коллизий
+/// </summary>
+/// <typeparam name="TKey">Тип ключа</typeparam>
+/// <typeparam name="TValue">Тип значения</typeparam>
+public class ChainHashTable<TKey, TValue>
+{
+    // Начальная емкость хеш-таблицы по умолчанию
+    private const int DefaultCapacity = 16;
+    // Пороговое значение коэффициента загрузки для активации перехэширования
+    private const double LoadFactorThreshold = 0.75;
+
+    // Массив корзин (бакетов), каждая корзина - связный список пар ключ-значение
+    private LinkedList<KeyValuePair<TKey, TValue>>[] buckets;
+    // Количество элементов в таблице
+    public int Count { get; private set; }
+
+    /// <summary>
+    /// Конструктор по умолчанию (с начальной емкостью по умолчанию)
+    /// </summary>
+    public ChainHashTable() : this(DefaultCapacity) { }
+
+    /// <summary>
+    /// Конструктор с заданной начальной емкостью
+    /// </summary>
+    /// <param name="capacity">Начальная емкость таблицы</param>
+    public ChainHashTable(int capacity)
+    {
+        // Инициализируем массив корзин заданного размера
+        buckets = new LinkedList<KeyValuePair<TKey, TValue>>[capacity];
+    }
+
+    /// <summary>
+    /// Вычисляет индекс корзины для заданного ключа
+    /// </summary>
+    /// <param name="key">Ключ</param>
+    /// <returns>Индекс корзины</returns>
+    private int GetBucketIndex(TKey key)
+    {
+        // Получаем хеш-код ключа и гарантируем, что он положительный
+        int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+        // Вычисляем индекс корзины как остаток от деления на количество корзин
+        return hashCode % buckets.Length;
+    }
+
+    /// <summary>
+    /// Добавляет пару ключ-значение в хеш-таблицу
+    /// </summary>
+    /// <param name="key">Ключ</param>
+    /// <param name="value">Значение</param>
+    /// <exception cref="ArgumentNullException">Если ключ null</exception>
+    /// <exception cref="ArgumentException">Если ключ уже существует</exception>
+    public void Add(TKey key, TValue value)
+    {
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
+
+        // Проверяем необходимость перехэширования
+        if ((double)Count / buckets.Length > LoadFactorThreshold)
+        {
+            Rehash();
+        }
+
+        // Получаем индекс корзины для ключа
+        int bucketIndex = GetBucketIndex(key);
+
+        // Если корзина пустая, создаем новый связный список
+        if (buckets[bucketIndex] == null)
+        {
+            buckets[bucketIndex] = new LinkedList<KeyValuePair<TKey, TValue>>();
+        }
+
+        var chain = buckets[bucketIndex];
+
+        // Проверяем, не существует ли уже такой ключ в цепочке
+        foreach (var pair in chain)
+        {
+            if (pair.Key.Equals(key))
+            {
+                throw new ArgumentException("Элемент с таким ключом уже существует");
+            }
+        }
+
+        // Добавляем новую пару ключ-значение в конец цепочки
+        chain.AddLast(new KeyValuePair<TKey, TValue>(key, value));
+        Count++;
+    }
+
+    /// <summary>
+    /// Пытается получить значение по ключу
+    /// </summary>
+    /// <param name="key">Ключ для поиска</param>
+    /// <param name="value">Найденное значение (если ключ существует)</param>
+    /// <returns>True, если ключ найден, иначе False</returns>
+    /// <exception cref="ArgumentNullException">Если ключ null</exception>
+    public bool TryGetValue(TKey key, out TValue value)
+    {
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
+
+        int bucketIndex = GetBucketIndex(key);
+        var chain = buckets[bucketIndex];
+
+        // Если цепочка существует, ищем в ней ключ
+        if (chain != null)
+        {
+            foreach (var pair in chain)
+            {
+                if (pair.Key.Equals(key))
+                {
+                    value = pair.Value;
+                    return true;
+                }
+            }
+        }
+
+        // Ключ не найден
+        value = default(TValue);
+        return false;
+    }
+
+    /// <summary>
+    /// Удаляет элемент с указанным ключом
+    /// </summary>
+    /// <param name="key">Ключ для удаления</param>
+    /// <returns>True, если элемент был удален, иначе False</returns>
+    /// <exception cref="ArgumentNullException">Если ключ null</exception>
+    public bool Remove(TKey key)
+    {
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
+
+        int bucketIndex = GetBucketIndex(key);
+        var chain = buckets[bucketIndex];
+
+        // Если цепочка существует, ищем в ней ключ
+        if (chain != null)
+        {
+            var node = chain.First;
+            while (node != null)
+            {
+                if (node.Value.Key.Equals(key))
+                {
+                    // Удаляем узел с найденным ключом
+                    chain.Remove(node);
+                    Count--;
+                    return true;
+                }
+                node = node.Next;
+            }
+        }
+
+        // Ключ не найден
+        return false;
+    }
+
+    /// <summary>
+    /// Перехэширование таблицы (увеличение размера и перераспределение элементов)
+    /// </summary>
+    private void Rehash()
+    {
+        // Увеличиваем емкость в 2 раза
+        int newCapacity = buckets.Length * 2;
+        var newBuckets = new LinkedList<KeyValuePair<TKey, TValue>>[newCapacity];
+
+        // Перебираем все существующие цепочки
+        foreach (var chain in buckets)
+        {
+            if (chain != null)
+            {
+                // Перебираем все элементы в цепочке
+                foreach (var pair in chain)
+                {
+                    // Вычисляем новый индекс корзины для элемента
+                    int newBucketIndex = pair.Key.GetHashCode() & 0x7FFFFFFF % newCapacity;
+
+                    // Если новая корзина пустая, создаем связный список
+                    if (newBuckets[newBucketIndex] == null)
+                    {
+                        newBuckets[newBucketIndex] = new LinkedList<KeyValuePair<TKey, TValue>>();
+                    }
+
+                    // Добавляем элемент в новую корзину
+                    newBuckets[newBucketIndex].AddLast(pair);
+                }
+            }
+        }
+
+        // Заменяем старый массив корзин новым
+        buckets = newBuckets;
+    }
+
+    /// <summary>
+    /// Выводит статистику по хеш-таблице
+    /// </summary>
+    public void PrintStats()
+    {
+        Console.WriteLine($"Всего элементов: {Count}");
+        Console.WriteLine($"Количество корзин: {buckets.Length}");
+        Console.WriteLine("Распределение элементов по корзинам:");
+
+        // Выводим количество элементов в каждой корзине
+        for (int i = 0; i < buckets.Length; i++)
+        {
+            int itemsInBucket = buckets[i]?.Count ?? 0;
+            Console.WriteLine($"Корзина {i}: {itemsInBucket} элементов");
+        }
+    }
+}
+
+// Пример использования хеш-таблицы
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Создаем новую хеш-таблицу
+        var hashTable = new ChainHashTable<string, int>();
+
+        // Добавляем элементы
+        hashTable.Add("one", 1);
+        hashTable.Add("two", 2);
+        hashTable.Add("three", 3);
+        hashTable.Add("four", 4);
+        hashTable.Add("five", 5);
+
+        // Пытаемся получить значение по ключу
+        if (hashTable.TryGetValue("three", out int value))
+        {
+            Console.WriteLine($"Найдено значение для 'three': {value}");
+        }
+
+        // Удаляем элемент
+        hashTable.Remove("two");
+
+        // Выводим статистику
+        hashTable.PrintStats();
+
+        // Добавляем больше элементов для демонстрации перехэширования
+        for (int i = 6; i <= 20; i++)
+        {
+            hashTable.Add($"key_{i}", i);
+        }
+
+        Console.WriteLine("\nПосле перехэширования:");
+        hashTable.PrintStats();
+    }
+}
+
+
+
+C++. Разработать программу (консольное приложение) работы со списком сотрудников. По сотруднику хранить следующую информацию: Табельный номер, Фамилия, Имя, Отчество, Должность. Реализовать функции: Добавить в список (чтобы было упорядоченно по табельному номеру), Вывод всего списка на экран.
+
+
+using System;
+
+// Структура для хранения данных о подразделении (в C# struct - это тип значения)
+public struct Department
+{
+    public int Number;
+    public string Name;
+    public string Specialization;
+    public int EmployeeCount;
+    public string DirectorName;
+}
+
+// Узел двухсвязного списка
+public class Node
+{
+    public Department Data;
+    public Node Prev;
+    public Node Next;
+
+    public Node(Department data)
+    {
+        Data = data;
+        Prev = null;
+        Next = null;
+    }
+}
+
+public static class DepartmentList
+{
+    private static Node head = null;
+    private static Node tail = null;
+
+    // Добавление с сохранением порядка по номеру подразделения
+    public static void AddDepartment(Department dept)
+    {
+        Node newNode = new Node(dept);
+
+        // Если список пуст
+        if (head == null)
+        {
+            head = tail = newNode;
+            return;
+        }
+
+        // Если новый элемент должен быть в начале
+        if (dept.Number < head.Data.Number)
+        {
+            newNode.Next = head;
+            head.Prev = newNode;
+            head = newNode;
+            return;
+        }
+
+        // Если новый элемент должен быть в конце
+        if (dept.Number > tail.Data.Number)
+        {
+            newNode.Prev = tail;
+            tail.Next = newNode;
+            tail = newNode;
+            return;
+        }
+
+        // Вставка в середину
+        Node current = head;
+        while (current != null && current.Data.Number < dept.Number)
+        {
+            current = current.Next;
+        }
+
+        // Вставляем перед current
+        newNode.Next = current;
+        newNode.Prev = current.Prev;
+        current.Prev.Next = newNode;
+        current.Prev = newNode;
+    }
+
+    // Вывод всего списка
+    public static void PrintAll()
+    {
+        if (head == null)
+        {
+            Console.WriteLine("Список подразделений пуст.");
+            return;
+        }
+
+        Console.WriteLine("Список подразделений:");
+        Console.WriteLine("----------------------------------------------------------------------------------------");
+        Console.WriteLine("| №  | Название          | Специализация      | Сотрудников | Руководитель           |");
+        Console.WriteLine("----------------------------------------------------------------------------------------");
+
+        Node current = head;
+        while (current != null)
+        {
+            Console.WriteLine($"| {current.Data.Number,-2} | {current.Data.Name,-16} | {current.Data.Specialization,-18} | {current.Data.EmployeeCount,-11} | {current.Data.DirectorName,-21} |");
+            current = current.Next;
+        }
+
+        Console.WriteLine("----------------------------------------------------------------------------------------");
+    }
+
+    // Ввод данных о подразделении
+    public static Department InputDepartment()
+    {
+        Department dept = new Department();
+
+        Console.Write("Введите номер подразделения: ");
+        dept.Number = int.Parse(Console.ReadLine());
+
+        Console.Write("Введите название подразделения: ");
+        dept.Name = Console.ReadLine();
+
+        Console.Write("Введите специализацию: ");
+        dept.Specialization = Console.ReadLine();
+
+        Console.Write("Введите количество сотрудников: ");
+        dept.EmployeeCount = int.Parse(Console.ReadLine());
+
+        Console.Write("Введите ФИО руководителя: ");
+        dept.DirectorName = Console.ReadLine();
+
+        return dept;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int choice;
+
+        do
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить подразделение");
+            Console.WriteLine("2. Вывести список подразделений");
+            Console.WriteLine("3. Выход");
+            Console.Write("Выберите действие: ");
+
+            choice = int.Parse(Console.ReadLine());
+
+            switch (choice)
+            {
+                case 1:
+                    Department dept = DepartmentList.InputDepartment();
+                    DepartmentList.AddDepartment(dept);
+                    Console.WriteLine("Подразделение добавлено.");
+                    break;
+                case 2:
+                    DepartmentList.PrintAll();
+                    break;
+                case 3:
+                    Console.WriteLine("Выход из программы.");
+                    break;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        } while (choice != 3);
+    }
+}
+
+
+С/C#. Создать граф через матрицу смежности реализовать функцию вывода графа на экран с обходом в глубину / ширину (граф заполнить случайным образом).
+
+
+using System;
+using System.Collections.Generic;
+
+class Graph
+{
+    private int[,] adjacencyMatrix; // Матрица смежности
+    private int vertexCount;        // Количество вершин
+    private Random random;
+
+    public Graph(int vertices)
+    {
+        vertexCount = vertices;
+        adjacencyMatrix = new int[vertexCount, vertexCount];
+        random = new Random();
+        GenerateRandomGraph();
+    }
+
+    // Генерация случайного неориентированного графа без петель
+    private void GenerateRandomGraph()
+    {
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = i + 1; j < vertexCount; j++)
+            {
+                int edge = random.Next(0, 2); // 0 или 1
+                adjacencyMatrix[i, j] = edge;
+                adjacencyMatrix[j, i] = edge; // симметрично для неориентированного графа
+            }
+        }
+    }
+
+    // Вывод матрицы смежности
+    public void PrintMatrix()
+    {
+        Console.WriteLine("Матрица смежности:");
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = 0; j < vertexCount; j++)
+            {
+                Console.Write(adjacencyMatrix[i, j] + " ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    // Обход графа в глубину (DFS)
+    public void DepthFirstSearch(int start)
+    {
+        bool[] visited = new bool[vertexCount];
+        Console.WriteLine("Обход в глубину, начиная с вершины " + start + ":");
+        DFS(start, visited);
+    }
+
+    // Рекурсивная функция обхода в глубину
+    private void DFS(int vertex, bool[] visited)
+    {
+        visited[vertex] = true;
+        Console.Write(vertex + " ");
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            if (adjacencyMatrix[vertex, i] == 1 && !visited[i])
+            {
+                DFS(i, visited);
+            }
+        }
+    }
+
+    // Обход в ширину (BFS)
+    public void BreadthFirstSearch(int start)
+    {
+        bool[] visited = new bool[vertexCount];
+        Queue<int> queue = new Queue<int>();
+
+        visited[start] = true;
+        queue.Enqueue(start);
+
+        Console.WriteLine("Обход в ширину (BFS), начиная с вершины " + start + ":");
+
+        while (queue.Count > 0)
+        {
+            int vertex = queue.Dequeue();
+            Console.Write(vertex + " ");
+
+            for (int i = 0; i < vertexCount; i++)
+            {
+                if (adjacencyMatrix[vertex, i] == 1 && !visited[i])
+                {
+                    visited[i] = true;
+                    queue.Enqueue(i);
+                }
+            }
+        }
+
+        Console.WriteLine();
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int vertexCount = 6; // Измените при необходимости
+        Graph graph = new Graph(vertexCount);
+
+        graph.PrintMatrix();
+
+        Console.WriteLine();
+
+        graph.DepthFirstSearch(0);  // DFS с вершины 0
+
+        Console.WriteLine();
+
+        graph.BreadthFirstSearch(0); // BFS с вершины 0
+
+        Console.ReadLine();
+    }
+}
+
+
+
+С/С#. Создать бинарное дерево поиска, реализовать функцию добавления нового элемента в бинарное дерево поиска, реализовать функцию удаления элемента. + Создать бинарное дерево поиска, реализовать функцию добавления нового элемента в бинарное дерево поиска, реализовать функцию вывода дерева на экран.
+
+
+using System;
+using System.Collections.Generic;
+
+class Node
+{
+    public int Value;
+    public Node Left;
+    public Node Right;
+
+    public Node(int value)
+    {
+        Value = value;
+        Left = null;
+        Right = null;
+    }
+}
+
+class BinarySearchTree
+{
+    private Node root;
+
+    // Добавление нового элемента
+    public void Insert(int value)
+    {
+        root = InsertRecursive(root, value);
+    }
+
+    private Node InsertRecursive(Node node, int value)
+    {
+        if (node == null)
+            return new Node(value);
+
+        if (value < node.Value)
+            node.Left = InsertRecursive(node.Left, value);
+        else if (value > node.Value)
+            node.Right = InsertRecursive(node.Right, value);
+
+        return node; // без дубликатов
+    }
+
+    // Удаление элемента
+    public void Delete(int value)
+    {
+        root = DeleteRecursive(root, value);
+    }
+
+    private Node DeleteRecursive(Node node, int value)
+    {
+        if (node == null)
+            return null;
+
+        if (value < node.Value)
+            node.Left = DeleteRecursive(node.Left, value);
+        else if (value > node.Value)
+            node.Right = DeleteRecursive(node.Right, value);
+        else
+        {
+            // Найден удаляемый узел
+
+            // 1. Узел без детей
+            if (node.Left == null && node.Right == null)
+                return null;
+
+            // 2. Один ребёнок
+            if (node.Left == null)
+                return node.Right;
+            if (node.Right == null)
+                return node.Left;
+
+            // 3. Два ребёнка: заменить на минимальный в правом поддереве
+            int minValue = FindMin(node.Right);
+            node.Value = minValue;
+            node.Right = DeleteRecursive(node.Right, minValue);
+        }
+
+        return node;
+    }
+
+    private int FindMin(Node node)
+    {
+        while (node.Left != null)
+            node = node.Left;
+        return node.Value;
+    }
+
+    // Обход дерева (слева-корень-право)
+    public void InOrderTraversal()
+    {
+        Console.Write("InOrder: ");
+        InOrderRecursive(root);
+        Console.WriteLine();
+    }
+
+    private void InOrderRecursive(Node node)
+    {
+        if (node != null)
+        {
+            InOrderRecursive(node.Left);
+            Console.Write(node.Value + " ");
+            InOrderRecursive(node.Right);
+        }
+    }
+
+    public void PrintTree()
+    {
+        Console.WriteLine("Структура дерева:");
+        PrintTreeRecursive(root, "", true);
+    }
+
+    private void PrintTreeRecursive(Node node, string indent, bool isLast)
+    {
+        if (node != null)
+        {
+            Console.Write(indent);
+            Console.Write(isLast ? "└─ " : "├─ ");
+            Console.WriteLine(node.Value);
+
+            indent += isLast ? "   " : "│  ";
+
+            PrintTreeRecursive(node.Left, indent, false);
+            PrintTreeRecursive(node.Right, indent, true);
+        }
+    }
+
+}
+
+class Program
+{
+    static void Main()
+    {
+        var bst = new BinarySearchTree();
+
+        int[] values = { 50, 30, 25, 31, 70, 20, 40, 45, 60, 80 };
+        foreach (var val in values)
+        {
+            bst.Insert(val);
+        }
+
+        Console.WriteLine("После вставки:");
+        bst.InOrderTraversal();
+
+        Console.WriteLine("Удаление 70:");
+        bst.Delete(70);
+        bst.InOrderTraversal();
+
+        Console.WriteLine("Удаление 30:");
+        bst.Delete(30);
+        bst.InOrderTraversal();
+
+        bst.PrintTree();
+
+        Console.ReadLine();
+    }
+}
+
+
+
+С/С#. Создать хэш-таблицу, открытая адресация - двойное хэширование.
+
+
+using System;
+
+class HashTable
+{
+    private string[] table;       // Массив для хранения элементов
+    private int size;             // Размер таблицы
+    private int count;            // Текущее количество элементов
+    private const string DELETED = "<deleted>"; // Маркер удалённого элемента
+
+    public HashTable(int capacity)
+    {
+        size = capacity;
+        table = new string[size];
+        count = 0;
+    }
+
+    // Первая хеш-функция (основная)
+    private int Hash1(string key)
+    {
+        return Math.Abs(key.GetHashCode()) % size;
+    }
+
+    // Вторая хеш-функция (используется при коллизии)
+    private int Hash2(string key)
+    {
+        // Простое число меньше размера таблицы. Гарантирует, что шаг смещения ≠ 0
+        return 1 + (Math.Abs(key.GetHashCode()) % (size - 1));
+    }
+
+    // Метод вставки ключа
+    public void Insert(string key)
+    {
+        if (count >= size)
+        {
+            Console.WriteLine("Хеш-таблица переполнена.");
+            return;
+        }
+
+        int h1 = Hash1(key);
+        int h2 = Hash2(key);
+        int index;
+
+        // Пробуем найти свободную ячейку с помощью двойного хеширования
+        for (int i = 0; i < size; i++)
+        {
+            index = (h1 + i * h2) % size;
+
+            // Вставляем элемент, если ячейка пустая или удалённая
+            if (table[index] == null || table[index] == DELETED)
+            {
+                table[index] = key;
+                count++;
+                return;
+            }
+        }
+
+        Console.WriteLine("Не удалось вставить ключ: " + key);
+    }
+
+    // Метод поиска элемента
+    public bool Search(string key)
+    {
+        int h1 = Hash1(key);
+        int h2 = Hash2(key);
+        int index;
+
+        // Пробуем найти ключ
+        for (int i = 0; i < size; i++)
+        {
+            index = (h1 + i * h2) % size;
+
+            if (table[index] == null)
+                return false; // если встретили null, значит ключа нет
+
+            if (table[index] != DELETED && table[index] == key)
+                return true;
+        }
+
+        return false;
+    }
+
+    // Метод удаления элемента
+    public void Delete(string key)
+    {
+        int h1 = Hash1(key);
+        int h2 = Hash2(key);
+        int index;
+
+        // Пробуем найти и удалить ключ
+        for (int i = 0; i < size; i++)
+        {
+            index = (h1 + i * h2) % size;
+
+            if (table[index] == null)
+                return; // если null — элемент не найден
+
+            if (table[index] != DELETED && table[index] == key)
+            {
+                table[index] = DELETED;
+                count--;
+                return;
+            }
+        }
+    }
+
+    // Печать всей таблицы
+    public void Print()
+    {
+        Console.WriteLine("Хеш-таблица:");
+        for (int i = 0; i < size; i++)
+        {
+            Console.WriteLine($"[{i}] => {table[i]}");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var table = new HashTable(11); // Инициализация таблицы размером 11 (простое число)
+
+        // Вставка элементов
+        table.Insert("apple");
+        table.Insert("banana");
+        table.Insert("orange");
+        table.Insert("grape");
+        table.Insert("melon");
+
+        table.Print();
+
+        // Удаление элемента
+        Console.WriteLine("\nУдаляем 'banana':");
+        table.Delete("banana");
+        table.Print();
+
+        // Поиск элементов
+        Console.WriteLine($"\nПоиск 'orange': {table.Search("orange")}");
+        Console.WriteLine($"Поиск 'banana': {table.Search("banana")}");
+
+        Console.ReadLine();
+    }
+}
+
+
+С/С#. Создать кольцевой список, реализовать функцию добавления нового элемента в кольцевой список (вставка в середину с сохранением упорядоченности элементов), реализовать функцию вывода списка на экран.
+
+
+using System;
+
+class CircularLinkedList
+{
+    // Узел списка
+    private class Node
+    {
+        public int Value;
+        public Node Next;
+
+        public Node(int value)
+        {
+            Value = value;
+            Next = null;
+        }
+    }
+
+    private Node tail; // Хвост списка — указывает на последний элемент (для удобства)
+
+    public CircularLinkedList()
+    {
+        tail = null;
+    }
+
+    // Вставка с сохранением упорядоченности (по возрастанию)
+    public void Insert(int value)
+    {
+        Node newNode = new Node(value);
+
+        // Если список пуст
+        if (tail == null)
+        {
+            newNode.Next = newNode; // указывает на себя
+            tail = newNode;
+            return;
+        }
+
+        Node current = tail.Next; // первый элемент
+        Node prev = tail;
+
+        do
+        {
+            if (value <= current.Value)
+            {
+                // Вставка перед current
+                prev.Next = newNode;
+                newNode.Next = current;
+
+                // Если вставляем перед первым элементом, обновляем хвост, если нужно
+                if (current == tail.Next && value < current.Value)
+                {
+                    // хвост не меняется, меняется начало
+                    // но у нас хвост указывает на последний, так что менять не нужно
+                }
+                return;
+            }
+
+            prev = current;
+            current = current.Next;
+        } while (current != tail.Next);
+
+        // Если дошли сюда — значит value больше всех, вставляем в конец
+        newNode.Next = tail.Next;
+        tail.Next = newNode;
+        tail = newNode;
+    }
+
+    // Вывод списка на экран
+    public void Print()
+    {
+        if (tail == null)
+        {
+            Console.WriteLine("Список пуст");
+            return;
+        }
+
+        Node current = tail.Next; // первый элемент
+        do
+        {
+            Console.Write(current.Value + " ");
+            current = current.Next;
+        } while (current != tail.Next);
+
+        Console.WriteLine();
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var list = new CircularLinkedList();
+
+        list.Insert(10);
+        list.Insert(5);
+        list.Insert(15);
+        list.Insert(7);
+        list.Insert(20);
+        list.Insert(1);
+
+        list.Print();  // Выведет: 1 5 7 10 15 20
+
+        Console.ReadLine();
+    }
+}
+
+
+
+С/С#. Для одномерного массива реализовать сортировку "Сортировка слиянием".
+
+using System;
+
+class MergeSortExample
+{
+    // Основной метод сортировки слиянием
+    public static void MergeSort(int[] array, int left, int right)
+    {
+        if (left < right)
+        {
+            int middle = (left + right) / 2;
+
+            // Рекурсивно сортируем левую половину
+            MergeSort(array, left, middle);
+
+            // Рекурсивно сортируем правую половину
+            MergeSort(array, middle + 1, right);
+
+            // Сливаем отсортированные половины
+            Merge(array, left, middle, right);
+        }
+    }
+
+    // Метод слияния двух отсортированных подмассивов
+    private static void Merge(int[] array, int left, int middle, int right)
+    {
+        int leftSize = middle - left + 1;
+        int rightSize = right - middle;
+
+        int[] leftArray = new int[leftSize];
+        int[] rightArray = new int[rightSize];
+
+        // Копируем данные во временные массивы
+        Array.Copy(array, left, leftArray, 0, leftSize);
+        Array.Copy(array, middle + 1, rightArray, 0, rightSize);
+
+        int i = 0, j = 0, k = left;
+
+        // Сливаем обратно в исходный массив
+        while (i < leftSize && j < rightSize)
+        {
+            if (leftArray[i] <= rightArray[j])
+            {
+                array[k++] = leftArray[i++];
+            }
+            else
+            {
+                array[k++] = rightArray[j++];
+            }
+        }
+
+        // Копируем оставшиеся элементы (если есть) из левого подмассива
+        while (i < leftSize)
+        {
+            array[k++] = leftArray[i++];
+        }
+
+        // Копируем оставшиеся элементы (если есть) из правого подмассива
+        while (j < rightSize)
+        {
+            array[k++] = rightArray[j++];
+        }
+    }
+
+    static void Main()
+    {
+        int[] arr = { 38, 27, 43, 3, 9, 82, 10 };
+
+        Console.WriteLine("Исходный массив:");
+        Console.WriteLine(string.Join(" ", arr));
+
+        MergeSort(arr, 0, arr.Length - 1);
+
+        Console.WriteLine("Отсортированный массив:");
+        Console.WriteLine(string.Join(" ", arr));
+    }
+}
+
+
+ВТОРОЙ ФАЙЛ
+
+1. С# Создать двусвязный список, реализовать функцию добавления нового элемента в двусвязный список (вставка в середину с сохранением упорядоченности элементов), реализовать функцию вывод списка на экран.
+
+using System;
+
+// Класс узла двусвязного списка
+public class Node<T> where T : IComparable<T>
+{
+    public T Data { get; set; }
+    public Node<T> Previous { get; set; }
+    public Node<T> Next { get; set; }
+
+    public Node(T data)
+    {
+        Data = data;
+        Previous = null;
+        Next = null;
+    }
+}
+
+// Класс двусвязного списка
+public class DoublyLinkedList<T> where T : IComparable<T>
+{
+    private Node<T> head;
+    private Node<T> tail;
+    private int count;
+
+    public int Count => count;
+
+    // Добавление элемента с сохранением упорядоченности
+    public void AddInOrder(T data)
+    {
+        Node<T> newNode = new Node<T>(data);
+
+        // Если список пуст
+        if (head == null)
+        {
+            head = newNode;
+            tail = newNode;
+            count++;
+            return;
+        }
+
+        // Если новый элемент меньше головы
+        if (data.CompareTo(head.Data) <= 0)
+        {
+            newNode.Next = head;
+            head.Previous = newNode;
+            head = newNode;
+            count++;
+            return;
+        }
+
+        // Если новый элемент больше хвоста
+        if (data.CompareTo(tail.Data) >= 0)
+        {
+            tail.Next = newNode;
+            newNode.Previous = tail;
+            tail = newNode;
+            count++;
+            return;
+        }
+
+        // Вставка в середину списка
+        Node<T> current = head;
+        while (current != null && current.Data.CompareTo(data) < 0)
+        {
+            current = current.Next;
+        }
+
+        if (current != null)
+        {
+            newNode.Previous = current.Previous;
+            newNode.Next = current;
+            current.Previous.Next = newNode;
+            current.Previous = newNode;
+            count++;
+        }
+    }
+
+    // Вывод списка на экран
+    public void PrintList()
+    {
+        if (head == null)
+        {
+            Console.WriteLine("Список пуст.");
+            return;
+        }
+
+        Console.WriteLine("Элементы списка (в прямом порядке):");
+        Node<T> current = head;
+        while (current != null)
+        {
+            Console.Write(current.Data + " <-> ");
+            current = current.Next;
+        }
+        Console.WriteLine("null");
+
+        Console.WriteLine("\nЭлементы списка (в обратном порядке):");
+        current = tail;
+        while (current != null)
+        {
+            Console.Write(current.Data + " <-> ");
+            current = current.Previous;
+        }
+        Console.WriteLine("null");
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        DoublyLinkedList<int> list = new DoublyLinkedList<int>();
+        Console.WriteLine("Двусвязный список с упорядоченной вставкой");
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить элемент");
+            Console.WriteLine("2. Вывести список");
+            Console.WriteLine("3. Выход");
+            Console.Write("Выберите действие: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Введите целое число для добавления: ");
+                    if (int.TryParse(Console.ReadLine(), out int number))
+                    {
+                        list.AddInOrder(number);
+                        Console.WriteLine($"Число {number} добавлено в список.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 2:
+                    list.PrintList();
+                    break;
+                case 3:
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+}
+
+2. С# Для одномерного массива реализовать сортировку "Быстрая сортировка"
+
+using System;
+
+class Program
+{
+    // Метод быстрой сортировки
+    static void QuickSort(int[] array, int left, int right)
+    {
+        if (left < right)
+        {
+            int pivotIndex = Partition(array, left, right);
+
+            // Рекурсивно сортируем элементы до и после опорного
+            QuickSort(array, left, pivotIndex - 1);
+            QuickSort(array, pivotIndex + 1, right);
+        }
+    }
+
+    // Метод разделения массива
+    static int Partition(int[] array, int left, int right)
+    {
+        int pivot = array[right]; // Опорный элемент
+        int i = left - 1;
+
+        for (int j = left; j < right; j++)
+        {
+            if (array[j] <= pivot)
+            {
+                i++;
+                // Меняем элементы местами
+                Swap(ref array[i], ref array[j]);
+            }
+        }
+
+        // Помещаем опорный элемент на правильную позицию
+        Swap(ref array[i + 1], ref array[right]);
+        return i + 1;
+    }
+
+    // Метод обмена элементов
+    static void Swap(ref int a, ref int b)
+    {
+        int temp = a;
+        a = b;
+        b = temp;
+    }
+
+    // Метод для вывода массива
+    static void PrintArray(int[] array)
+    {
+        Console.WriteLine("Отсортированный массив:");
+        foreach (var item in array)
+        {
+            Console.Write(item + " ");
+        }
+        Console.WriteLine();
+    }
+
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Программа быстрой сортировки (QuickSort)");
+
+        // Запрос размера массива
+        Console.Write("Введите размер массива: ");
+        int size;
+        while (!int.TryParse(Console.ReadLine(), out size) || size <= 0)
+        {
+            Console.Write("Некорректный ввод. Введите положительное целое число: ");
+        }
+
+        // Создание и заполнение массива
+        int[] array = new int[size];
+        Console.WriteLine("Введите элементы массива:");
+
+        for (int i = 0; i < size; i++)
+        {
+            Console.Write($"Элемент {i + 1}: ");
+            while (!int.TryParse(Console.ReadLine(), out array[i]))
+            {
+                Console.Write($"Некорректный ввод. Введите целое число для элемента {i + 1}: ");
+            }
+        }
+
+        // Вывод исходного массива
+        Console.WriteLine("\nИсходный массив:");
+        foreach (var item in array)
+        {
+            Console.Write(item + " ");
+        }
+        Console.WriteLine();
+
+        // Сортировка массива
+        QuickSort(array, 0, array.Length - 1);
+
+        // Вывод отсортированного массива
+        PrintArray(array);
+
+    }
+}
+
+3. С# Создать граф через матрицу смежности, реализовать функцию вывода графа на экран с обходом в глубину (граф заполнить случайным образом)
+
+using System;
+
+class Graph
+{
+    private int[,] adjacencyMatrix;
+    private int size;
+    private Random random = new Random();
+
+    public Graph(int size)
+    {
+        this.size = size;
+        adjacencyMatrix = new int[size, size];
+        GenerateRandomGraph();
+    }
+
+    // Генерация случайного графа
+    private void GenerateRandomGraph()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = i + 1; j < size; j++)
+            {
+                // Вероятность создания ребра - 30%
+                if (random.Next(0, 100) < 30)
+                {
+                    adjacencyMatrix[i, j] = 1;
+                    adjacencyMatrix[j, i] = 1; // Граф неориентированный
+                }
+            }
+        }
+    }
+
+    // Вывод матрицы смежности
+    public void PrintAdjacencyMatrix()
+    {
+        Console.WriteLine("\nМатрица смежности графа:");
+        Console.Write("   ");
+        for (int i = 0; i < size; i++)
+        {
+            Console.Write($"{i} ");
+        }
+        Console.WriteLine();
+
+        for (int i = 0; i < size; i++)
+        {
+            Console.Write($"{i}: ");
+            for (int j = 0; j < size; j++)
+            {
+                Console.Write($"{adjacencyMatrix[i, j]} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    // Обход графа в глубину (DFS)
+    public void DepthFirstSearch()
+    {
+        bool[] visited = new bool[size];
+        Console.WriteLine("\nОбход графа в глубину (DFS):");
+
+        for (int i = 0; i < size; i++)
+        {
+            if (!visited[i])
+            {
+                DFS(i, visited);
+            }
+        }
+        Console.WriteLine();
+    }
+
+    private void DFS(int vertex, bool[] visited)
+    {
+        visited[vertex] = true;
+        Console.Write($"{vertex} ");
+
+        for (int i = 0; i < size; i++)
+        {
+            if (adjacencyMatrix[vertex, i] == 1 && !visited[i])
+            {
+                DFS(i, visited);
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Программа для работы с графом (матрица смежности)");
+
+        // Запрос размера графа
+        Console.Write("Введите количество вершин графа: ");
+        int size;
+        while (!int.TryParse(Console.ReadLine(), out size) || size <= 0)
+        {
+            Console.Write("Некорректный ввод. Введите положительное целое число: ");
+        }
+
+        // Создание графа
+        Graph graph = new Graph(size);
+
+        // Вывод информации о графе
+        graph.PrintAdjacencyMatrix();
+        graph.DepthFirstSearch();
+
+    }
+}
+
+4. С# Создать бинарное дерево поиска, реализовать функцию добавления нового элемента в бинарное дерево поиска, реализовать функцию удаления элемента.
+
+using System;
+
+// Класс узла бинарного дерева
+class TreeNode
+{
+    public int Data { get; set; }
+    public TreeNode Left { get; set; }
+    public TreeNode Right { get; set; }
+
+    public TreeNode(int data)
+    {
+        Data = data;
+        Left = null;
+        Right = null;
+    }
+}
+
+// Класс бинарного дерева поиска
+class BinarySearchTree
+{
+    private TreeNode root;
+
+    // Добавление элемента в дерево
+    public void Insert(int data)
+    {
+        root = InsertRec(root, data);
+    }
+
+    private TreeNode InsertRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return new TreeNode(data);
+        }
+
+        if (data < node.Data)
+        {
+            node.Left = InsertRec(node.Left, data);
+        }
+        else if (data > node.Data)
+        {
+            node.Right = InsertRec(node.Right, data);
+        }
+
+        return node;
+    }
+
+    // Удаление элемента из дерева
+    public void Delete(int data)
+    {
+        root = DeleteRec(root, data);
+    }
+
+    private TreeNode DeleteRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return null;
+        }
+
+        if (data < node.Data)
+        {
+            node.Left = DeleteRec(node.Left, data);
+        }
+        else if (data > node.Data)
+        {
+            node.Right = DeleteRec(node.Right, data);
+        }
+        else
+        {
+            // Узел с одним или без детей
+            if (node.Left == null)
+            {
+                return node.Right;
+            }
+            else if (node.Right == null)
+            {
+                return node.Left;
+            }
+
+            // Узел с двумя детьми: получаем минимальный элемент в правом поддереве
+            node.Data = MinValue(node.Right);
+
+            // Удаляем минимальный элемент
+            node.Right = DeleteRec(node.Right, node.Data);
+        }
+
+        return node;
+    }
+
+    private int MinValue(TreeNode node)
+    {
+        int minValue = node.Data;
+        while (node.Left != null)
+        {
+            minValue = node.Left.Data;
+            node = node.Left;
+        }
+        return minValue;
+    }
+
+    // Поиск элемента в дереве
+    public bool Search(int data)
+    {
+        return SearchRec(root, data);
+    }
+
+    private bool SearchRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return false;
+        }
+
+        if (node.Data == data)
+        {
+            return true;
+        }
+
+        return data < node.Data ? SearchRec(node.Left, data) : SearchRec(node.Right, data);
+    }
+
+    // Вывод дерева (инфиксный обход)
+    public void InOrderTraversal()
+    {
+        Console.Write("Элементы дерева (инфиксный обход): ");
+        InOrderRec(root);
+        Console.WriteLine();
+    }
+
+    private void InOrderRec(TreeNode node)
+    {
+        if (node != null)
+        {
+            InOrderRec(node.Left);
+            Console.Write(node.Data + " ");
+            InOrderRec(node.Right);
+        }
+    }
+
+    // Вывод дерева в виде структуры
+    public void PrintTree()
+    {
+        Console.WriteLine("\nСтруктура дерева:");
+        PrintTreeRec(root, 0);
+    }
+
+    private void PrintTreeRec(TreeNode node, int level)
+    {
+        if (node != null)
+        {
+            PrintTreeRec(node.Right, level + 1);
+            Console.WriteLine(new string(' ', level * 4) + node.Data);
+            PrintTreeRec(node.Left, level + 1);
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        BinarySearchTree bst = new BinarySearchTree();
+        Console.WriteLine("Программа для работы с бинарным деревом поиска");
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить элемент");
+            Console.WriteLine("2. Удалить элемент");
+            Console.WriteLine("3. Найти элемент");
+            Console.WriteLine("4. Вывести элементы дерева");
+            Console.WriteLine("5. Показать структуру дерева");
+            Console.WriteLine("6. Выход");
+            Console.Write("Выберите действие: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Введите число для добавления: ");
+                    if (int.TryParse(Console.ReadLine(), out int insertValue))
+                    {
+                        bst.Insert(insertValue);
+                        Console.WriteLine($"Число {insertValue} добавлено в дерево.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 2:
+                    Console.Write("Введите число для удаления: ");
+                    if (int.TryParse(Console.ReadLine(), out int deleteValue))
+                    {
+                        if (bst.Search(deleteValue))
+                        {
+                            bst.Delete(deleteValue);
+                            Console.WriteLine($"Число {deleteValue} удалено из дерева.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Число {deleteValue} не найдено в дереве.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 3:
+                    Console.Write("Введите число для поиска: ");
+                    if (int.TryParse(Console.ReadLine(), out int searchValue))
+                    {
+                        Console.WriteLine(bst.Search(searchValue)
+                            ? $"Число {searchValue} найдено в дереве."
+                            : $"Число {searchValue} не найдено в дереве.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 4:
+                    bst.InOrderTraversal();
+                    break;
+                case 5:
+                    bst.PrintTree();
+                    break;
+                case 6:
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+}
+
+5. С# Создать бинарное дерево поиска, реализовать функцию добавления нового элемента в бинарное дерево поиска, реализовать функцию вывода дерева на экран
+
+using System;
+
+// Класс узла бинарного дерева
+class TreeNode
+{
+    public int Data { get; set; }
+    public TreeNode Left { get; set; }
+    public TreeNode Right { get; set; }
+
+    public TreeNode(int data)
+    {
+        Data = data;
+        Left = null;
+        Right = null;
+    }
+}
+
+// Класс бинарного дерева поиска
+class BinarySearchTree
+{
+    private TreeNode root;
+
+    // Добавление элемента в дерево
+    public void Insert(int data)
+    {
+        root = InsertRec(root, data);
+    }
+
+    private TreeNode InsertRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return new TreeNode(data);
+        }
+
+        if (data < node.Data)
+        {
+            node.Left = InsertRec(node.Left, data);
+        }
+        else if (data > node.Data)
+        {
+            node.Right = InsertRec(node.Right, data);
+        }
+
+        return node;
+    }
+
+    // Удаление элемента из дерева
+    public void Delete(int data)
+    {
+        root = DeleteRec(root, data);
+    }
+
+    private TreeNode DeleteRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return null;
+        }
+
+        if (data < node.Data)
+        {
+            node.Left = DeleteRec(node.Left, data);
+        }
+        else if (data > node.Data)
+        {
+            node.Right = DeleteRec(node.Right, data);
+        }
+        else
+        {
+            // Узел с одним или без детей
+            if (node.Left == null)
+            {
+                return node.Right;
+            }
+            else if (node.Right == null)
+            {
+                return node.Left;
+            }
+
+            // Узел с двумя детьми: получаем минимальный элемент в правом поддереве
+            node.Data = MinValue(node.Right);
+
+            // Удаляем минимальный элемент
+            node.Right = DeleteRec(node.Right, node.Data);
+        }
+
+        return node;
+    }
+
+    private int MinValue(TreeNode node)
+    {
+        int minValue = node.Data;
+        while (node.Left != null)
+        {
+            minValue = node.Left.Data;
+            node = node.Left;
+        }
+        return minValue;
+    }
+
+    // Поиск элемента в дереве
+    public bool Search(int data)
+    {
+        return SearchRec(root, data);
+    }
+
+    private bool SearchRec(TreeNode node, int data)
+    {
+        if (node == null)
+        {
+            return false;
+        }
+
+        if (node.Data == data)
+        {
+            return true;
+        }
+
+        return data < node.Data ? SearchRec(node.Left, data) : SearchRec(node.Right, data);
+    }
+
+    // Вывод дерева (инфиксный обход)
+    public void InOrderTraversal()
+    {
+        Console.Write("Элементы дерева (инфиксный обход): ");
+        InOrderRec(root);
+        Console.WriteLine();
+    }
+
+    private void InOrderRec(TreeNode node)
+    {
+        if (node != null)
+        {
+            InOrderRec(node.Left);
+            Console.Write(node.Data + " ");
+            InOrderRec(node.Right);
+        }
+    }
+
+    // Вывод дерева в виде структуры
+    public void PrintTree()
+    {
+        Console.WriteLine("\nСтруктура дерева:");
+        PrintTreeRec(root, 0);
+    }
+
+    private void PrintTreeRec(TreeNode node, int level)
+    {
+        if (node != null)
+        {
+            PrintTreeRec(node.Right, level + 1);
+            Console.WriteLine(new string(' ', level * 4) + node.Data);
+            PrintTreeRec(node.Left, level + 1);
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        BinarySearchTree bst = new BinarySearchTree();
+        Console.WriteLine("Программа для работы с бинарным деревом поиска");
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить элемент");
+            Console.WriteLine("2. Удалить элемент");
+            Console.WriteLine("3. Найти элемент");
+            Console.WriteLine("4. Вывести элементы дерева");
+            Console.WriteLine("5. Показать структуру дерева");
+            Console.WriteLine("6. Выход");
+            Console.Write("Выберите действие: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Введите число для добавления: ");
+                    if (int.TryParse(Console.ReadLine(), out int insertValue))
+                    {
+                        bst.Insert(insertValue);
+                        Console.WriteLine($"Число {insertValue} добавлено в дерево.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 2:
+                    Console.Write("Введите число для удаления: ");
+                    if (int.TryParse(Console.ReadLine(), out int deleteValue))
+                    {
+                        if (bst.Search(deleteValue))
+                        {
+                            bst.Delete(deleteValue);
+                            Console.WriteLine($"Число {deleteValue} удалено из дерева.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Число {deleteValue} не найдено в дереве.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 3:
+                    Console.Write("Введите число для поиска: ");
+                    if (int.TryParse(Console.ReadLine(), out int searchValue))
+                    {
+                        Console.WriteLine(bst.Search(searchValue)
+                            ? $"Число {searchValue} найдено в дереве."
+                            : $"Число {searchValue} не найдено в дереве.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 4:
+                    bst.InOrderTraversal();
+                    break;
+                case 5:
+                    bst.PrintTree();
+                    break;
+                case 6:
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+}
+
+6. С# Для одномерного массива реализовать сортировку "Сортировка слиянием"
+
+using System;
+
+class MergeSortProgram
+{
+    // Основной метод сортировки слиянием
+    public static void MergeSort(int[] array)
+    {
+        if (array == null || array.Length <= 1)
+            return;
+
+        int[] tempArray = new int[array.Length];
+        MergeSort(array, tempArray, 0, array.Length - 1);
+    }
+
+    // Рекурсивный метод сортировки слиянием
+    private static void MergeSort(int[] array, int[] tempArray, int left, int right)
+    {
+        if (left < right)
+        {
+            int middle = (left + right) / 2;
+            MergeSort(array, tempArray, left, middle);      // Сортировка левой половины
+            MergeSort(array, tempArray, middle + 1, right); // Сортировка правой половины
+            Merge(array, tempArray, left, middle, right);   // Слияние двух отсортированных половин
+        }
+    }
+
+    // Метод для слияния двух отсортированных подмассивов
+    private static void Merge(int[] array, int[] tempArray, int left, int middle, int right)
+    {
+        int leftStart = left;
+        int leftEnd = middle;
+        int rightStart = middle + 1;
+        int rightEnd = right;
+        int tempIndex = left;
+
+        // Слияние пока есть элементы в обоих подмассивах
+        while (leftStart <= leftEnd && rightStart <= rightEnd)
+        {
+            if (array[leftStart] <= array[rightStart])
+            {
+                tempArray[tempIndex++] = array[leftStart++];
+            }
+            else
+            {
+                tempArray[tempIndex++] = array[rightStart++];
+            }
+        }
+
+        // Копирование оставшихся элементов левого подмассива
+        while (leftStart <= leftEnd)
+        {
+            tempArray[tempIndex++] = array[leftStart++];
+        }
+
+        // Копирование оставшихся элементов правого подмассива
+        while (rightStart <= rightEnd)
+        {
+            tempArray[tempIndex++] = array[rightStart++];
+        }
+
+        // Копирование временного массива обратно в основной
+        for (int i = left; i <= right; i++)
+        {
+            array[i] = tempArray[i];
+        }
+    }
+
+    // Метод для вывода массива
+    public static void PrintArray(int[] array)
+    {
+        foreach (var item in array)
+        {
+            Console.Write(item + " ");
+        }
+        Console.WriteLine();
+    }
+
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Программа сортировки слиянием (Merge Sort)");
+
+        // Запрос размера массива
+        Console.Write("Введите размер массива: ");
+        int size;
+        while (!int.TryParse(Console.ReadLine(), out size) || size <= 0)
+        {
+            Console.Write("Некорректный ввод. Введите положительное целое число: ");
+        }
+
+        // Создание и заполнение массива
+        int[] array = new int[size];
+        Console.WriteLine("Введите элементы массива:");
+
+        for (int i = 0; i < size; i++)
+        {
+            Console.Write($"Элемент {i + 1}: ");
+            while (!int.TryParse(Console.ReadLine(), out array[i]))
+            {
+                Console.Write($"Некорректный ввод. Введите целое число для элемента {i + 1}: ");
+            }
+        }
+
+        // Вывод исходного массива
+        Console.WriteLine("\nИсходный массив:");
+        PrintArray(array);
+
+        // Сортировка массива
+        MergeSort(array);
+
+        // Вывод отсортированного массива
+        Console.WriteLine("\nОтсортированный массив:");
+        PrintArray(array);
+
+    }
+}
+
+7. С# Создать двусвязный список, реализовать функцию добавления нового элемента в двусвязный список (вставка в середину с сохранением упорядоченности элементов), реализовать функцию вывода списка на экран
+
+using System;
+
+// Класс узла двусвязного списка
+public class Node
+{
+    public int Data { get; set; }
+    public Node Previous { get; set; }
+    public Node Next { get; set; }
+
+    public Node(int data)
+    {
+        Data = data;
+        Previous = null;
+        Next = null;
+    }
+}
+
+// Класс двусвязного списка
+public class DoublyLinkedList
+{
+    private Node head;
+    private Node tail;
+    private int count;
+
+    public int Count => count;
+
+    // Добавление элемента с сохранением упорядоченности (по возрастанию)
+    public void AddInOrder(int data)
+    {
+        Node newNode = new Node(data);
+
+        // Если список пуст
+        if (head == null)
+        {
+            head = newNode;
+            tail = newNode;
+            count++;
+            return;
+        }
+
+        // Если новый элемент меньше головы - вставляем в начало
+        if (data <= head.Data)
+        {
+            newNode.Next = head;
+            head.Previous = newNode;
+            head = newNode;
+            count++;
+            return;
+        }
+
+        // Если новый элемент больше хвоста - вставляем в конец
+        if (data >= tail.Data)
+        {
+            tail.Next = newNode;
+            newNode.Previous = tail;
+            tail = newNode;
+            count++;
+            return;
+        }
+
+        // Вставка в середину списка
+        Node current = head;
+        while (current != null && current.Data < data)
+        {
+            current = current.Next;
+        }
+
+        // Вставляем перед current
+        newNode.Previous = current.Previous;
+        newNode.Next = current;
+        current.Previous.Next = newNode;
+        current.Previous = newNode;
+        count++;
+    }
+
+    // Вывод списка от начала к концу
+    public void PrintForward()
+    {
+        Console.Write("Список (в прямом порядке): ");
+        Node current = head;
+        while (current != null)
+        {
+            Console.Write(current.Data + " ");
+            current = current.Next;
+        }
+        Console.WriteLine();
+    }
+
+    // Вывод списка от конца к началу
+    public void PrintBackward()
+    {
+        Console.Write("Список (в обратном порядке): ");
+        Node current = tail;
+        while (current != null)
+        {
+            Console.Write(current.Data + " ");
+            current = current.Previous;
+        }
+        Console.WriteLine();
+    }
+
+    // Вывод структуры списка (для наглядности)
+    public void PrintStructure()
+    {
+        Console.WriteLine("\nСтруктура списка:");
+        Console.WriteLine($"Голова: {head?.Data}");
+        Console.WriteLine($"Хвост: {tail?.Data}");
+        Console.WriteLine($"Количество элементов: {count}");
+
+        Console.WriteLine("Связи между узлами:");
+        Node current = head;
+        while (current != null)
+        {
+            Console.Write($"[{current.Previous?.Data}] <- {current.Data} -> [{current.Next?.Data}] | ");
+            current = current.Next;
+        }
+        Console.WriteLine("\n");
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        DoublyLinkedList list = new DoublyLinkedList();
+        Console.WriteLine("Двусвязный список с упорядоченной вставкой");
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить элемент");
+            Console.WriteLine("2. Вывести список (прямой порядок)");
+            Console.WriteLine("3. Вывести список (обратный порядок)");
+            Console.WriteLine("4. Показать структуру списка");
+            Console.WriteLine("5. Выход");
+            Console.Write("Выберите действие: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Введите целое число для добавления: ");
+                    if (int.TryParse(Console.ReadLine(), out int number))
+                    {
+                        list.AddInOrder(number);
+                        Console.WriteLine($"Число {number} добавлено в список.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 2:
+                    list.PrintForward();
+                    break;
+                case 3:
+                    list.PrintBackward();
+                    break;
+                case 4:
+                    list.PrintStructure();
+                    break;
+                case 5:
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+}
+
+8. С# Создать кольцевой список, реализовать функцию добавления нового элемента в кольцевой список (вставка в середину с сохранением упорядоченности элементов), реализовать функцию вывода списка на экран
+
+using System;
+
+// Класс узла кольцевого списка
+public class CircularNode
+{
+    public int Data { get; set; }
+    public CircularNode Next { get; set; }
+
+    public CircularNode(int data)
+    {
+        Data = data;
+        Next = this; // По умолчанию ссылается на себя
+    }
+}
+
+// Класс кольцевого списка
+public class CircularLinkedList
+{
+    private CircularNode head;
+    private int count;
+
+    public int Count => count;
+
+    // Добавление элемента с сохранением упорядоченности (по возрастанию)
+    public void AddInOrder(int data)
+    {
+        CircularNode newNode = new CircularNode(data);
+
+        // Если список пуст
+        if (head == null)
+        {
+            head = newNode;
+            count++;
+            return;
+        }
+
+        // Если новый элемент меньше головы - вставляем перед головой
+        if (data <= head.Data)
+        {
+            InsertBeforeHead(newNode);
+            return;
+        }
+
+        // Поиск места для вставки
+        CircularNode current = head;
+        while (current.Next != head && current.Next.Data < data)
+        {
+            current = current.Next;
+        }
+
+        // Вставка после current
+        newNode.Next = current.Next;
+        current.Next = newNode;
+        count++;
+    }
+
+    // Вспомогательный метод для вставки перед головой
+    private void InsertBeforeHead(CircularNode newNode)
+    {
+        if (head == null)
+        {
+            head = newNode;
+            count++;
+            return;
+        }
+
+        // Находим последний узел
+        CircularNode last = head;
+        while (last.Next != head)
+        {
+            last = last.Next;
+        }
+
+        // Вставляем перед head
+        newNode.Next = head;
+        last.Next = newNode;
+        head = newNode;
+        count++;
+    }
+
+    // Вывод списка начиная с головы
+    public void PrintList()
+    {
+        if (head == null)
+        {
+            Console.WriteLine("Список пуст.");
+            return;
+        }
+
+        Console.Write("Кольцевой список: ");
+        CircularNode current = head;
+        do
+        {
+            Console.Write(current.Data + " ");
+            current = current.Next;
+        } while (current != head);
+        Console.WriteLine();
+    }
+
+    // Вывод структуры списка (для наглядности)
+    public void PrintStructure()
+    {
+        Console.WriteLine("\nСтруктура кольцевого списка:");
+        if (head == null)
+        {
+            Console.WriteLine("Список пуст.");
+            return;
+        }
+
+        Console.WriteLine($"Голова: {head.Data}");
+        Console.WriteLine($"Количество элементов: {count}");
+
+        Console.WriteLine("Связи между узлами:");
+        CircularNode current = head;
+        do
+        {
+            Console.Write($"{current.Data} -> {current.Next.Data} | ");
+            current = current.Next;
+        } while (current != head);
+        Console.WriteLine("\n");
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        CircularLinkedList list = new CircularLinkedList();
+        Console.WriteLine("Кольцевой список с упорядоченной вставкой");
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить элемент");
+            Console.WriteLine("2. Вывести список");
+            Console.WriteLine("3. Показать структуру списка");
+            Console.WriteLine("4. Выход");
+            Console.Write("Выберите действие: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Введите целое число для добавления: ");
+                    if (int.TryParse(Console.ReadLine(), out int number))
+                    {
+                        list.AddInOrder(number);
+                        Console.WriteLine($"Число {number} добавлено в список.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный ввод числа.");
+                    }
+                    break;
+                case 2:
+                    list.PrintList();
+                    break;
+                case 3:
+                    list.PrintStructure();
+                    break;
+                case 4:
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+}
+
+
