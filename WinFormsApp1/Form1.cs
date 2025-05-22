@@ -29,6 +29,9 @@ namespace WinFormsApp1
 
                     books.AddRange(data);
 
+                    dataGridView1.DataSource = null;
+                    dataGridView1.DataSource = books;
+                    dataGridView1.Columns.RemoveAt(dataGridView1.Columns.Count - 1);
                     MessageBox.Show($"Загружено: {data.Count} записей");
                 }
                 catch (Exception ex)
@@ -37,6 +40,7 @@ namespace WinFormsApp1
                 }
             }
         }
+
         private void SaveButton_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
