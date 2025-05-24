@@ -1,0 +1,58 @@
+{
+  "users": [
+    {
+      "id": "b9ac",
+      "login": "user",
+      "password": "123"
+    },
+    {
+      "login": "maxim",
+      "password": "123",
+      "id": "Ru-DTO8"
+    }
+  ],
+  "entities": [
+    {
+      "id": 1,
+      "userId": "b9ac",
+      "name": "aaa",
+      "description": "bbb"
+    },
+    {
+      "id": 3,
+      "userId": "b9ac",
+      "description": "24",
+      "name": "24"
+    },
+    {
+      "id": 4,
+      "name": "3464",
+      "description": "64",
+      "userId": "b9ac"
+    },
+    {
+      "id": 5,
+      "name": "ertet",
+      "description": "ete",
+      "userId": "Ru-DTO8"
+    },
+    {
+      "id": 6,
+      "name": "4545",
+      "description": "3535",
+      "userId": "Ru-DTO8"
+    },
+    {
+      "id": 7,
+      "userId": "b9ac",
+      "description": "34535",
+      "name": "3535"
+    },
+    {
+      "id": 8,
+      "name": "24",
+      "description": "2424",
+      "userId": "Ru-DTO8"
+    }
+  ]
+}
