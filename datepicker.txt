@@ -1,0 +1,17 @@
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+<Controller
+  name="date"
+  control={control}
+  render={({ field: { value = '', onChange } }) => (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <DateTimePicker
+        label="Дата"
+        value={value}
+        onChange={onChange}
+        slotProps={{ textField: { error: Boolean(errors.date) } }}
+      />
+    </LocalizationProvider>
+  )}
+/>
