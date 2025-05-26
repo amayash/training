@@ -8,8 +8,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateTimePicker
         label="Дата"
-        value={value}
+        value={new Date(value)}
         onChange={onChange}
+        ampm={false}
         slotProps={{ textField: { error: Boolean(errors.date) } }}
       />
     </LocalizationProvider>
